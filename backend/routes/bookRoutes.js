@@ -33,4 +33,17 @@ router.get('/books', async (req, res) => {
     }
 });
 
+// Route pour récupérer un livre par ID
+router.get('/book/:id', async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.id);
+        if (!book) {
+            return res.status(404).json({ message: 'Livre non trouvé.' });
+        }
+        res.status(200).json(book);
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
