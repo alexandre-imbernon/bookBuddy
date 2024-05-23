@@ -1,5 +1,7 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Book = require('../models/bookSchema');
+const User = require('../models/userSchema'); // Assurez-vous d'importer le modèle User
 
 const router = express.Router();
 
@@ -35,8 +37,12 @@ router.get('/books', async (req, res) => {
 
 // Route pour récupérer un livre par ID
 router.get('/book/:id', async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'ID de livre invalide.' });
+    }
     try {
-        const book = await Book.findById(req.params.id);
+        const book = await Book.findById(id);
         if (!book) {
             return res.status(404).json({ message: 'Livre non trouvé.' });
         }
@@ -68,13 +74,46 @@ router.get('/book/filter/:filter', async (req, res) => {
 
 // Route pour mettre à jour l'état d'un livre par ID
 router.put('/book/:id', async (req, res) => {
+    const { id } = req.params;
     const { status } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'ID de livre invalide.' });
+    }
     try {
-        const book = await Book.findByIdAndUpdate(req.params.id, { status }, { new: true });
+        const book = await Book.findByIdAndUpdate(id, { status }, { new: true });
         if (!book) {
             return res.status(404).json({ message: 'Livre non trouvé.' });
         }
         res.status(200).json(book);
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
+// Route pour ajouter un livre aux favoris d'un utilisateur
+router.post('/book/:bookId/favorite/:userId', async (req, res) => {
+    const { bookId, userId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(bookId) || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'ID de livre ou d\'utilisateur invalide.' });
+    }
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+        }
+
+        if (!user.isLoggedIn) {
+            return res.status(403).json({ message: 'Connectez-vous pour ajouter ce livre en favori.' });
+        }
+
+        if (user.favorites.includes(bookId)) {
+            return res.status(400).json({ message: 'Le livre est déjà dans vos favoris.' });
+        }
+
+        user.favorites.push(bookId);
+        await user.save();
+
+        res.status(200).json({ message: 'Livre ajouté aux favoris avec succès.' });
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });
     }
