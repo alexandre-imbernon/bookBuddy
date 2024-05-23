@@ -46,4 +46,28 @@ router.put('/user/:id', async (req, res) => {
     }
 });
 
+// Route pour connecter un utilisateur
+router.post('/connexion', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur non trouvé." });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Les informations de connexion sont incorrectes." });
+        }
+
+        // Mettre à jour l'état de connexion de l'utilisateur
+        user.isLoggedIn = true;
+        await user.save();
+
+        res.status(200).json({ message: "Connexion réussie.", user });
+    } catch (error) {
+        res.status(400).send({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
