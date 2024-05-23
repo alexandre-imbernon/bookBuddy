@@ -7,9 +7,9 @@ connectDB();
 // parsing des données JSON
 app.use(express.json());
 
-//Middleware pour définir les routes
+// Middleware pour définir les routes
 app.use('/api', require('./routes/userRoutes'));
-// app.use('/api', require('./routes/bookRoutes'));
+app.use('/api', require('./routes/bookRoutes'));
 
 const PORT = 5000;
 app.listen(PORT, () => {
