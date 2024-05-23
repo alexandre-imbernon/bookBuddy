@@ -1,7 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/userSchema');
-const Book = require('../models/bookSchema'); // Assurez-vous d'importer le modèle Book
 
 const router = express.Router();
 

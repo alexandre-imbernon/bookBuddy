@@ -1,14 +1,18 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Book = require('../models/bookSchema');
-const User = require('../models/userSchema'); // Assurez-vous d'importer le modèle User
-
+const User = require('../models/userSchema');
 const router = express.Router();
 
 // Route pour ajouter un livre
 router.post('/addBook', async (req, res) => {
     const { title, author, image, status, pages, category } = req.body;
     try {
+        const existingBook = await Book.findOne({ title, author });
+        if (existingBook) {
+            return res.status(400).json({ message: 'Le livre existe déjà.' });
+        }
+
         const book = new Book({
             title,
             author,
@@ -57,13 +61,11 @@ router.get('/book/filter/:filter', async (req, res) => {
     const filter = req.params.filter;
     try {
         let books;
-        // Exemple de filtrage par catégorie
         if (filter === 'fiction') {
             books = await Book.find({ category: 'Fiction' });
         } else if (filter === 'dystopian') {
             books = await Book.find({ category: 'Dystopian' });
         } else {
-            // Gérer d'autres filtres ici
             return res.status(400).json({ message: 'Filtre non pris en charge.' });
         }
         res.status(200).json(books);
@@ -90,8 +92,8 @@ router.put('/book/:id', async (req, res) => {
     }
 });
 
-// Route pour ajouter un livre aux favoris d'un utilisateur
-router.post('/book/:bookId/favorite/:userId', async (req, res) => {
+// Route pour supprimer un livre des favoris d'un utilisateur
+router.delete('/book/:bookId/favorite/:userId', async (req, res) => {
     const { bookId, userId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(bookId) || !mongoose.Types.ObjectId.isValid(userId)) {
         return res.status(400).json({ message: 'ID de livre ou d\'utilisateur invalide.' });
@@ -103,17 +105,18 @@ router.post('/book/:bookId/favorite/:userId', async (req, res) => {
         }
 
         if (!user.isLoggedIn) {
-            return res.status(403).json({ message: 'Connectez-vous pour ajouter ce livre en favori.' });
+            return res.status(403).json({ message: 'Connectez-vous pour supprimer ce livre des favoris.' });
         }
 
-        if (user.favorites.includes(bookId)) {
-            return res.status(400).json({ message: 'Le livre est déjà dans vos favoris.' });
+        const index = user.favorites.indexOf(bookId);
+        if (index === -1) {
+            return res.status(404).json({ message: 'Ce livre n\'est pas dans vos favoris.' });
         }
 
-        user.favorites.push(bookId);
+        user.favorites.splice(index, 1);
         await user.save();
 
-        res.status(200).json({ message: 'Livre ajouté aux favoris avec succès.' });
+        res.status(200).json({ message: 'Livre supprimé des favoris avec succès.' });
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });
     }
