@@ -70,4 +70,22 @@ router.post('/connexion', async (req, res) => {
     }
 });
 
+// Route pour récupérer les informations d'un utilisateur par ID si connecté
+router.get('/user/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+        }
+
+        if (!user.isLoggedIn) {
+            return res.status(403).json({ message: 'Connectez-vous.' });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
