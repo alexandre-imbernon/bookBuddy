@@ -66,4 +66,18 @@ router.get('/book/filter/:filter', async (req, res) => {
     }
 });
 
+// Route pour mettre à jour l'état d'un livre par ID
+router.put('/book/:id', async (req, res) => {
+    const { status } = req.body;
+    try {
+        const book = await Book.findByIdAndUpdate(req.params.id, { status }, { new: true });
+        if (!book) {
+            return res.status(404).json({ message: 'Livre non trouvé.' });
+        }
+        res.status(200).json(book);
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
