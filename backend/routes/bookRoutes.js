@@ -46,4 +46,24 @@ router.get('/book/:id', async (req, res) => {
     }
 });
 
+// Route pour filtrer une liste de livres
+router.get('/book/filter/:filter', async (req, res) => {
+    const filter = req.params.filter;
+    try {
+        let books;
+        // Exemple de filtrage par catégorie
+        if (filter === 'fiction') {
+            books = await Book.find({ category: 'Fiction' });
+        } else if (filter === 'dystopian') {
+            books = await Book.find({ category: 'Dystopian' });
+        } else {
+            // Gérer d'autres filtres ici
+            return res.status(400).json({ message: 'Filtre non pris en charge.' });
+        }
+        res.status(200).json(books);
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
