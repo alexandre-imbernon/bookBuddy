@@ -61,10 +61,37 @@ function HomePage() {
     (filter === '' || book.category.toLowerCase() === filter.toLowerCase())
   );
 
+  const addToFavorites = async (bookId) => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      console.error('Token non trouvé. Veuillez vous connecter.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/book/${bookId._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        console.log('Livre ajouté aux favoris avec succès.');
+      } else {
+        console.error('Échec de l\'ajout du livre aux favoris.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du livre aux favoris:', error);
+    }
+  };
+
   return (
     <div>
       <SearchBar setSearchQuery={setSearchQuery} setFilter={setFilter} />
-      <BookList books={filteredBooks} selectBook={handleSelectBook} deleteBook={handleDeleteBook} />
+      <BookList books={filteredBooks} selectBook={handleSelectBook} deleteBook={handleDeleteBook} addToFavorites={addToFavorites} />
       {selectedBook && (
         <BookModal
           book={selectedBook}

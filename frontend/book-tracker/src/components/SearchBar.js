@@ -16,6 +16,10 @@ function SearchBar({ setSearchQuery, setFilter }) {
         <option value="science-fiction">Science-Fiction</option>
         <option value="fantasy">Fantasy</option>
         <option value="adventure">Adventure</option>
+        <option value="dystopian">Dystopian</option>
+        <option value="classic">Classic</option>
+        <option value="Historical Fiction">Historical Fiction</option>
+        
         {/* Ajoutez d'autres options selon vos catégories */}
       </select>
     </div>

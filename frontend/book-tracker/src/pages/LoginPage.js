@@ -18,6 +18,8 @@ function LoginPage({ login }) {
 
       if (response.ok) {
         const userData = await response.json();
+        console.log(userData);
+        localStorage.setItem('token', userData.token);
         login(userData);
       } else {
         const errorMessage = await response.text();
