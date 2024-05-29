@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 
-function BookForm({ addBook }) {
+function BookForm({ onBookAdded }) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [image, setImage] = useState('');
   const [status, setStatus] = useState('à lire');
   const [pages, setPages] = useState('');
   const [category, setCategory] = useState('');
-
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newBook = {
-      id: Date.now(),
       title,
       author,
       image,
@@ -19,13 +18,33 @@ function BookForm({ addBook }) {
       pages,
       category
     };
-    addBook(newBook);
-    setTitle('');
-    setAuthor('');
-    setImage('');
-    setStatus('à lire');
-    setPages('');
-    setCategory('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/addBook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newBook)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message); // Livre ajouté avec succès
+        onBookAdded(newBook); // Met à jour l'état parent
+        setTitle('');
+        setAuthor('');
+        setImage('');
+        setStatus('à lire');
+        setPages('');
+        setCategory('');
+      } else {
+        const errorData = await response.json();
+        console.error(errorData.message);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du livre', error);
+    }
   };
 
   return (

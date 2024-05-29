@@ -4,11 +4,28 @@ function LoginPage({ login }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mock login function - replace with actual login logic
-    const userData = { email, rewards: [] };
-    login(userData);
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/connexion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        login(userData);
+      } else {
+        const errorMessage = await response.text();
+        console.error(`Erreur lors de la connexion: ${errorMessage}`);
+      }
+    } catch(error) {
+      console.error('Erreur lors de la connexion', error);
+    }
   };
 
   return (

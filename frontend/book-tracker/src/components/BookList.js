@@ -1,11 +1,11 @@
 import React from 'react';
 import BookComponent from './BookComponent';
 
-function BookList({ books, selectBook }) {
+function BookList({ books, selectBook, deleteBook }) {
   return (
     <div>
       {books.map(book => (
-        <BookComponent key={book.id} book={book} selectBook={selectBook} />
+        <BookComponent key={book._id} book={book} selectBook={selectBook} deleteBook={deleteBook} />
       ))}
     </div>
   );
