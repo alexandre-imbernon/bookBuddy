@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Book = require('../models/bookSchema');
 const User = require('../models/userSchema');
 const authenticateJWT = require('../configs/authenticateJWT');
-
+const authMiddleware = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 // Route pour ajouter un livre
@@ -146,6 +146,23 @@ router.delete('/books/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la suppression du livre', error });
   }
+});
+
+
+
+router.get('/favorites', authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const user = await User.findById(userId).populate('favorites');
+
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+        }
+
+        res.status(200).json(user.favorites);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la récupération des favoris.', error });
+    }
 });
 
 module.exports = router;
