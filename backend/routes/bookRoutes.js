@@ -92,6 +92,35 @@ router.put('/book/:id', async (req, res) => {
     }
 });
 
+// Route pour ajouter un livre aux favoris d'un utilisateur
+router.post('/book/:bookId/favorite/:userId', async (req, res) => {
+    const { bookId, userId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(bookId) || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'ID de livre ou d\'utilisateur invalide.' });
+    }
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+        }
+
+        if (!user.isLoggedIn) {
+            return res.status(403).json({ message: 'Connectez-vous pour ajouter ce livre en favori.' });
+        }
+
+        if (user.favorites.includes(bookId)) {
+            return res.status(400).json({ message: 'Le livre est déjà dans vos favoris.' });
+        }
+
+        user.favorites.push(bookId);
+        await user.save();
+
+        res.status(200).json({ message: 'Livre ajouté aux favoris avec succès.' });
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
 // Route pour supprimer un livre des favoris d'un utilisateur
 router.delete('/book/:bookId/favorite/:userId', async (req, res) => {
     const { bookId, userId } = req.params;

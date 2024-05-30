@@ -89,4 +89,58 @@ router.get('/user/:id', async (req, res) => {
     }
 });
 
+// Route pour gérer la gamification (ERREUR CONNEXION REFUSEE, VOIR SI MARCHE AVEC TOKEN)
+router.post('/reward/:parametre', async (req, res) => {
+    const { parametre } = req.params;
+    const { userId } = req.body;
+    // const token = localStorage.getItem('token');
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'ID d\'utilisateur invalide.' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+        }
+
+        if (!user.isLoggedIn) {
+            return res.status(403).json({ message: 'Connectez-vous pour recevoir des récompenses.' });
+        }
+
+        const favoritesResponse = await fetch(`/api/user/${userId}`);
+        const favorites = favoritesResponse.data;
+
+        const favoriteCount = favorites.length;
+
+        if (parametre === 'addFavorite') {
+            user.rewards.push({ type: 'addFavorite', message: 'Récompense pour avoir ajouté un livre en favori.' });
+
+            const badges = [];
+            if (favoriteCount === 1) {
+                badges.push('Premier favori');
+            }
+
+            badges.forEach(badge => {
+                if (!user.badges.includes(badge)) {
+                    user.badges.push(badge);
+                    user.rewards.push({ type: 'badge', message: `Récompense pour avoir atteint ${badge}.` });
+                }
+            });
+        } else if (parametre === 'finishBook') {
+            user.rewards.push({ type: 'finishBook', message: 'Récompense pour avoir terminé un livre.' });
+        } else if (parametre === 'finishThreeBooks') {
+            user.rewards.push({ type: 'finishThreeBooks', message: 'Récompense pour avoir terminé trois livres.' });
+        } else {
+            return res.status(400).json({ message: 'Paramètre de récompense non pris en charge.' });
+        }
+
+        await user.save();
+        res.status(200).json({ message: 'Récompense ajoutée avec succès.', rewards: user.rewards, badges: user.badges });
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;

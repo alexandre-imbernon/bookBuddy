@@ -7,8 +7,9 @@ const userSchema = new Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     favorites: [{ type: Schema.Types.ObjectId, ref: 'Book' }], // Assurez-vous que la référence est correcte
-    rewards: [String],
-    isLoggedIn: { type: Boolean, default: false } 
+    rewards: [{ type: { type: String }, message: { type: String } }],
+    isLoggedIn: { type: Boolean, default: false },
+    badges: [{ type: String }]
 }, { versionKey: false });
 
 userSchema.pre('save', function(next) {
