@@ -7,7 +7,7 @@ function BookComponent({ book, selectBook, deleteBook,  addToFavorites }) {
       <p>{book.author}</p>
       <p>Pages: {book.pages}</p>
       <p>Catégorie: {book.category}</p>
-      <button onClick={() => addToFavorites(book)}>Favoris</button>
+      <button onClick={() => addToFavorites(book._id)}>Favoris</button>
       <button onClick={() => selectBook(book)}>Voir détails</button>
       <button onClick={() => deleteBook(book._id)}>Supprimer</button>
     </div>

@@ -64,7 +64,7 @@ router.post('/connexion', async (req, res) => {
             return res.status(400).json({ message: 'Mot de passe incorrect.' });
         }
 
-        const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' }); // Le token expire après 1 heure
+        const token = jwt.sign({ userId: user._id }, secretKey);
 
         res.status(200).json({ message: 'Connexion réussie.', token, user });
     } catch (error) {

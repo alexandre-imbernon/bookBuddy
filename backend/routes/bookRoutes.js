@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Book = require('../models/bookSchema');
 const User = require('../models/userSchema');
 const authenticateJWT = require('../configs/authenticateJWT');
-const authMiddleware = require('../middlewares/authMiddleware');
+const authMiddleware = require('./authMiddleware');
 const router = express.Router();
 
 // Route pour ajouter un livre
@@ -97,35 +97,38 @@ router.put('/book/:id', async (req, res) => {
 // Route pour ajouter un livre en favori
 router.post('/book/:id', authenticateJWT, async (req, res) => {
     const bookId = req.params.id;
-    const userId = req.user.userId;
-    console.log(userId);
+    console.log(bookId);
+    // const userId = req.user.userId;
 
-    try {
-        // Vérifier si le livre existe
-        const book = await Book.findById(bookId);
-        if (!book) {
-            return(res.status(404).json({ message: 'Livre non trouvé.' }));
-        }
+    // console.log(`User ID: ${userId}, Book ID: ${bookId}`);
 
-        // Vérifier si l'utilisateur existe et s'il est connecté
-        const user = await User.findById(userId);
-        if (!user || !user.isLoggedIn) {
-            return(res.status(401).json({ message: 'Utilisateur non authentifié.' }));
-        }
+    // try {
+    //     // Vérifier si le livre existe
+    //     const book = await Book.findById(bookId);
+    //     if (!book) {
+    //         return res.status(404).json({ message: 'Livre non trouvé.' });
+    //     }
 
-        // Vérifier si le livre est déjà dans les favoris de l'utilisateur
-        if (user.favorites.includes(bookId)) {
-            return(res.status(400).json({ message: 'Ce livre est déjà dans les favoris de l\'utilisateur.' }));
-        }
+    //     // Vérifier si l'utilisateur existe et s'il est connecté
+    //     const user = await User.findById(userId);
+    //     if (!user || !user.isLoggedIn) {
+    //         return res.status(401).json({ message: 'Utilisateur non authentifié.' });
+    //     }
 
-        // Ajouter le livre aux favoris de l'utilisateur
-        user.favorites.push(bookId);
-        await user.save();
+    //     // Vérifier si le livre est déjà dans les favoris de l'utilisateur
+    //     if (user.favorites.includes(bookId)) {
+    //         return res.status(400).json({ message: 'Ce livre est déjà dans les favoris de l\'utilisateur.' });
+    //     }
 
-        res.status(200).json({ message: 'Livre ajouté aux favoris avec succès.' });
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de l\'ajout du livre aux favoris.', error });
-    }
+    //     // Ajouter le livre aux favoris de l'utilisateur
+    //     user.favorites.push(bookId);
+    //     await user.save();
+
+    //     res.status(200).json({ message: 'Livre ajouté aux favoris avec succès.' });
+    // } catch (error) {
+    //     console.error('Erreur lors de l\'ajout du livre aux favoris:', error);
+    //     res.status(500).json({ message: 'Erreur lors de l\'ajout du livre aux favoris.', error });
+    // }
 });
 
 // Route pour supprimer un livre des favoris d'un utilisateur

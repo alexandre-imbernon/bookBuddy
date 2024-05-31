@@ -15,6 +15,7 @@ function App() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [user, setUser] = useState(null);
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     // Fetch books and user data from server (mocked here)
@@ -48,11 +49,13 @@ function App() {
 
   const login = (userData) => {
     setUser(userData);
+    localStorage.setItem('token', token);
     // Save user data to local storage or server
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('token');
     // Remove user data from local storage or server
   };
 
@@ -63,7 +66,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage books={books} selectBook={selectBook} />} />
           <Route path="/add" element={user ? <AddBookPage addBook={addBook} /> : <Navigate to="/login" />} />
-          <Route path="/book/:id" element={user ? <BookDetailPage books={books} updateBookState={updateBookState} addFavorite={addFavorite} removeFavorite={removeFavorite} favorites={favorites} /> : <Navigate to="/login" />} />
+          <Route path="/book/bookFavorite" element={user ? <BookDetailPage books={books} updateBookState={updateBookState} addFavorite={addFavorite} removeFavorite={removeFavorite} favorites={favorites} /> : <Navigate to="/book/bookFavorite" />} />
           <Route path="/favorites" element={user ? <FavoritesPage books={books} favorites={favorites} /> : <Navigate to="/login" />} />
           <Route path="/rewards" element={user ? <RewardsPage user={user} /> : <Navigate to="/login" />} />
           <Route path="/login" element={<LoginPage login={login} />} />

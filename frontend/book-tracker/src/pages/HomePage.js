@@ -3,6 +3,46 @@ import BookList from '../components/BookList';
 import SearchBar from '../components/SearchBar';
 import BookModal from '../components/BookModal';
 
+// CSS styles en JS
+const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    minHeight: '100vh', // Utiliser min-height pour garantir que l'arrière-plan couvre toute la page
+    background: 'linear-gradient(#5d625e, #A89D89)',
+    fontFamily: 'Roboto, sans-serif',
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    width: '100%',
+    padding: '20px',
+    backgroundColor: '#D2C2A7',
+    fontFamily: 'Roboto, sans-serif',
+  },
+  searchBar: {
+    width: '300px',
+    padding: '10px',
+  },
+  bookList: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr 1fr', // Trois colonnes de taille égale
+    gap: '20px', // Espacement entre les éléments
+    padding: '20px',
+    width: '100%',
+  },
+  bookItem: {
+    backgroundColor: '#fff',
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+    textAlign: 'center',
+  },
+};
+
+
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('');
@@ -89,9 +129,13 @@ function HomePage() {
   };
 
   return (
-    <div>
-      <SearchBar setSearchQuery={setSearchQuery} setFilter={setFilter} />
-      <BookList books={filteredBooks} selectBook={handleSelectBook} deleteBook={handleDeleteBook} addToFavorites={addToFavorites} />
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <SearchBar style={styles.searchBar} setSearchQuery={setSearchQuery} setFilter={setFilter} />
+      </header>
+      <div style={styles.bookList}>
+        <BookList books={filteredBooks} selectBook={handleSelectBook} deleteBook={handleDeleteBook} addToFavorites={addToFavorites} />
+      </div>
       {selectedBook && (
         <BookModal
           book={selectedBook}
